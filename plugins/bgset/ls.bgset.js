@@ -105,9 +105,16 @@
 	};
 
 	addEventListener('lazybeforeunveil', function(e){
-		var set, image, elem;
+		var set = e.target.getAttribute('data-bgset'),
+			image, elem;
 
-		if(e.defaultPrevented || !(set = e.target.getAttribute('data-bgset'))){return;}
+		if (!set && e.target.classList.contains('lazyload-background')) {
+			set = e.target.getAttribute('data-srcset');
+			e.target.setAttribute('data-bgset', set);
+			e.target.removeAttribute('data-srcset');
+		}
+
+		if(e.defaultPrevented || !set){return;}
 
 		elem = e.target;
 		image = document.createElement('img');
