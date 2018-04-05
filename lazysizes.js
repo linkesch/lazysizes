@@ -333,7 +333,7 @@
 					rect = lazyloadElems[i].getBoundingClientRect();
 					elem = lazyloadElems[i];
 
-					if (elem.classList.contains('medium-insert-container')) {
+					if (elem.classList.contains('medium-insert-container') && elem.querySelector('.medium-insert-images')) {
 						elem = elem.querySelector('.medium-insert-images');
 					}
 
