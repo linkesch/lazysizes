@@ -541,7 +541,7 @@ function l(window, document) {
 					document[_addEventListener](name, throttledCheckElements, true);
 				});
 
-				if((/d$|^c/.test(document.readyState))){
+				if(['interactive', 'complete', 'loaded'].indexOf(document.readyState) !== -1){
 					onload();
 				} else {
 					addEventListener('load', onload);
