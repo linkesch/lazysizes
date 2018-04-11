@@ -131,7 +131,7 @@
 
 			lazySizes.rAF(function(){
 				lazySizes.fire(image, '_lazyloaded', {}, true, true);
-				if(image.complete) {
+				if(image.complete && image.naturalWidth > 1) {
 					proxyLoad({target: image});
 				}
 			});
