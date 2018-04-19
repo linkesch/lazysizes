@@ -347,7 +347,7 @@
 						unveilElement(lazyloadElems[i]);
 						loadedSomething = true;
 						if(isLoading > 9){break;}
-					} else if(!loadedSomething && isCompleted && !autoLoadElem &&
+					} else if(!loadedSomething && !autoLoadElem &&
 						isLoading < 4 && lowRuns < 4 && loadMode > 2 &&
 						(preloadElems[0] || lazySizesConfig.preloadAfterLoad) &&
 						(preloadElems[0] || (!elemExpandVal && ((eLbottom || eLright || eLleft || eLtop) || lazyloadElems[i][_getAttribute](lazySizesConfig.sizesAttr) != 'auto')))){
@@ -481,7 +481,7 @@
 			var sizes = elem[_getAttribute](lazySizesConfig.sizesAttr) || elem[_getAttribute]('sizes');
 			var isAuto = sizes == 'auto';
 
-			if( (isAuto || !isCompleted) && isImg && (elem.src || elem.srcset) && !elem.complete && !hasClass(elem, lazySizesConfig.errorClass)){return;}
+			if(isAuto && isImg && (elem.src || elem.srcset) && !elem.complete && !hasClass(elem, lazySizesConfig.errorClass)){return;}
 
 			detail = triggerEvent(elem, 'lazyunveilread').detail;
 
