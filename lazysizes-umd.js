@@ -344,7 +344,7 @@
 						(eLright = rect.right) >= elemNegativeExpand * hFac &&
 						(eLleft = rect.left) <= eLvW &&
 						(eLbottom || eLright || eLleft || eLtop) &&
-						(isCompleted && isLoading < 3 && !elemExpandVal && (loadMode < 3 || lowRuns < 4)) &&
+						(isLoading < 3 && !elemExpandVal && (loadMode < 3 || lowRuns < 4)) &&
 						isNestedVisible(elem, elemExpand)){
 						unveilElement(lazyloadElems[i]);
 						loadedSomething = true;
