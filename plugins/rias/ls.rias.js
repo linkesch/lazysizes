@@ -144,19 +144,17 @@
 
 		url = ((options.prefix || '') + url + (options.postfix || '')).replace(regPlaceholder, replaceFn);
 
-		if(options.widths){
-			options.widths.forEach(function(width){
-				var widthAlias = options.widthmap[width] || width;
-				var candidate = {
-					u: url.replace(regWidth, widthAlias)
-							.replace(regHeight, options.ratio ? Math.round(width * options.ratio) : ''),
-					w: width
-				};
+		options.widths.forEach(function(width){
+			var widthAlias = options.widthmap[width] || width;
+			var candidate = {
+				u: url.replace(regWidth, widthAlias)
+						.replace(regHeight, options.ratio ? Math.round(width * options.ratio) : ''),
+				w: width
+			};
 
-				candidates.push(candidate);
-				candidates.srcset.push( (candidate.c = candidate.u + ' ' + width + 'w') );
-			});
-		}
+			candidates.push(candidate);
+			candidates.srcset.push( (candidate.c = candidate.u + ' ' + width + 'w') );
+		});
 		return candidates;
 	}
 
