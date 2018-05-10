@@ -111,7 +111,7 @@
 
 
 		// Default task.
-		grunt.registerTask("default", [ "wrapcore", "test", "uglify", "bytesize", "maxFilesize" ]);
+		grunt.registerTask("default", [ "wrapcore", "test", "uglify", "bytesize" ]);
 		grunt.registerTask("test", [ "jshint" ]);
 	};
 })();
