@@ -611,7 +611,7 @@
 
 		var updateElementsSizes = function(){
 			var i;
-			var len = autosizesElems.length;
+			var len = (autosizesElems || {}).length;
 			if(len){
 				i = 0;
 
