@@ -105,10 +105,10 @@
 	};
 
 	addEventListener('lazybeforeunveil', function(e){
-		var set = e.target.getAttribute('data-bgset'),
+		var set = typeof (e.target || {}).getAttribute === 'function' && e.target.getAttribute('data-bgset'),
 			image, elem;
 
-		if (!set && e.target.classList.contains('lazyload-background')) {
+		if (!set && e.target.classList && e.target.classList.contains('lazyload-background')) {
 			set = e.target.getAttribute('data-srcset');
 			e.target.setAttribute('data-bgset', set);
 			e.target.removeAttribute('data-srcset');
