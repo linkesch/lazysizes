@@ -215,7 +215,7 @@
 		var elem, src, elemOpts, parent, sources, i, len, sourceSrc, sizes, detail, hasPlaceholder, modified, emptyList;
 		elem = e.target;
 
-		if(!e.detail.dataAttr || e.defaultPrevented || riasCfg.disabled || !((sizes = elem.getAttribute(config.sizesAttr) || elem.getAttribute('sizes')) && regAllowedSizes.test(sizes))){return;}
+		if(!(e.detail || {}).dataAttr || e.defaultPrevented || riasCfg.disabled || !((sizes = elem.getAttribute(config.sizesAttr) || elem.getAttribute('sizes')) && regAllowedSizes.test(sizes))){return;}
 
 		src = getSrc(elem);
 
@@ -347,7 +347,7 @@
 				return;
 			}
 
-			if(!('_lazyrias' in elem) && (!e.detail.dataAttr || !getWSet(elem, true))){
+			if(!('_lazyrias' in elem) && (!(e.detail || {}).dataAttr || !getWSet(elem, true))){
 				return;
 			}
 
