@@ -35,19 +35,19 @@ function l(window, document) {
 		if(!regClassCache[cls]){
 			regClassCache[cls] = new RegExp('(\\s|^)'+cls+'(\\s|$)');
 		}
-		return regClassCache[cls].test(ele[_getAttribute]('class') || '') && regClassCache[cls];
+		return regClassCache[cls].test((typeof ele[_getAttribute] === 'function' && ele[_getAttribute]('class')) || '') && regClassCache[cls];
 	};
 
 	var addClass = function(ele, cls) {
 		if (!hasClass(ele, cls)){
-			ele.setAttribute('class', (ele[_getAttribute]('class') || '').trim() + ' ' + cls);
+			ele.setAttribute('class', ((typeof ele[_getAttribute] === 'function' && ele[_getAttribute]('class')) || '').trim() + ' ' + cls);
 		}
 	};
 
 	var removeClass = function(ele, cls) {
 		var reg;
 		if ((reg = hasClass(ele,cls))) {
-			ele.setAttribute('class', (ele[_getAttribute]('class') || '').replace(reg, ' '));
+			ele.setAttribute('class', ((typeof ele[_getAttribute] === 'function' && ele[_getAttribute]('class')) || '').replace(reg, ' '));
 		}
 	};
 
