@@ -144,7 +144,7 @@
 
 		url = ((options.prefix || '') + url + (options.postfix || '')).replace(regPlaceholder, replaceFn);
 
-		if(options.widths){
+		if(Array.isArray(options.widths)){
 			options.widths.forEach(function(width){
 				var widthAlias = options.widthmap[width] || width;
 				var candidate = {
