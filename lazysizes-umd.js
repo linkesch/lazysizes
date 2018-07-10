@@ -70,9 +70,18 @@
 	};
 
 	var triggerEvent = function(elem, name, detail, noBubbles, noCancelable){
-		var event = document.createEvent('CustomEvent');
+		var event;
 
-		event.initCustomEvent(name, !noBubbles, !noCancelable, detail || {});
+		if (typeof CustomEvent === 'function') {
+			event = new CustomEvent(name, {
+				bubbles: !noBubbles,
+				cancelable: !noCancelable,
+				detail: detail || {}
+			});
+		} else {
+			event = document.createEvent('CustomEvent');
+			event.initCustomEvent(name, !noBubbles, !noCancelable, detail || {});
+		}
 
 		elem.dispatchEvent(event);
 		return event;
