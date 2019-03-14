@@ -93,7 +93,7 @@
 			styleElementStyle.backgroundPosition = config.position;
 			styleElementStyle.backgroundSize = config.fit;
 
-			hideElement.style.display = 'none';
+			hideElement.style.setProperty('display', 'none', 'important');
 
 			element.setAttribute('data-parent-fit', config.fit);
 			element.setAttribute('data-parent-container', 'prev');
