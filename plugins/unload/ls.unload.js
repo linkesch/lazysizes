@@ -11,14 +11,26 @@
 
 			var vTop = expand * -1;
 			var vLeft = vTop;
-			var vBottom = innerHeight + expand;
+			var vBottom = (parseInt(window.parentHeight, 10) || innerHeight) + expand;
 			var vRight = innerWidth + expand;
 
 			for(i = 0, len = checkElements.length; i < len; i++){
 				box = checkElements[i].getBoundingClientRect();
+				var top = box.top;
+				var bottom = box.bottom;
+				var left = box.left;
+				var right = box.right;
 
-				if((box.top > vBottom || box.bottom < vTop || box.left > vRight || box.right < vLeft) ||
-					(config.unloadHidden && !box.top && !box.bottom && !box.left && !box.right)){
+				var iframeRect = (window.parentScrollPosition || {}).iframe;
+				if (iframeRect) {
+					top += iframeRect.top;
+					bottom += iframeRect.top;
+					left += iframeRect.left;
+					right += iframeRect.left;
+				}
+
+				if((top > vBottom || bottom < vTop || left > vRight || right < vLeft) ||
+					(config.unloadHidden && !top && !bottom && !left && !right)){
 					unloadElements.push(checkElements[i]);
 				}
 			}

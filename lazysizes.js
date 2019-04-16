@@ -284,10 +284,23 @@
 
 				if(visible && getCSS(parent, 'overflow') != 'visible'){
 					outerRect = parent.getBoundingClientRect();
-					visible = eLright > outerRect.left &&
-						eLleft < outerRect.right &&
-						eLbottom > outerRect.top - 1 &&
-						eLtop < outerRect.bottom + 1
+
+					var top = outerRect.top;
+					var bottom = outerRect.bottom;
+					var left = outerRect.left;
+					var right = outerRect.right;
+					var iframeRect = (window.parentScrollPosition || {}).iframe;
+					if (iframeRect) {
+						top += iframeRect.top;
+						bottom += iframeRect.top;
+						left += iframeRect.left;
+						right += iframeRect.left;
+					}
+
+					visible = eLright > left &&
+						eLleft < right &&
+						eLbottom > top - 1 &&
+						eLtop < bottom + 1
 					;
 				}
 			}
@@ -296,7 +309,7 @@
 		};
 
 		var checkElements = function() {
-			var eLlen, i, rect, autoLoadElem, loadedSomething, elemExpand, elemNegativeExpand, elemExpandVal, beforeExpandVal, elem;
+			var eLlen, i, rect, autoLoadElem, loadedSomething, elemExpand, elemNegativeExpand, elemExpandVal, beforeExpandVal, elem, iframeRect;
 
 			if((loadMode = lazySizesConfig.loadMode) && isLoading < 8 && (eLlen = lazyloadElems.length)){
 
@@ -334,7 +347,7 @@
 
 					if(beforeExpandVal !== elemExpand){
 						eLvW = innerWidth + (elemExpand * hFac);
-						elvH = innerHeight + elemExpand;
+						elvH = (parseInt(window.parentHeight, 10) || innerHeight) + elemExpand;
 						elemNegativeExpand = elemExpand * -1;
 						beforeExpandVal = elemExpand;
 					}
@@ -342,14 +355,27 @@
 					rect = lazyloadElems[i].getBoundingClientRect();
 					elem = lazyloadElems[i];
 
+					var top = rect.top;
+					var bottom = rect.bottom;
+					var left = rect.left;
+					var right = rect.right;
+
+					iframeRect = (window.parentScrollPosition || {}).iframe;
+					if (iframeRect) {
+						top += iframeRect.top;
+						bottom += iframeRect.top;
+						left += iframeRect.left;
+						right += iframeRect.left;
+					}
+
 					if (elem.classList.contains('medium-insert-container') && elem.querySelector('.medium-insert-images')) {
 						elem = elem.querySelector('.medium-insert-images');
 					}
 
-					if ((eLbottom = rect.bottom) >= elemNegativeExpand &&
-						(eLtop = rect.top) <= elvH &&
-						(eLright = rect.right) >= elemNegativeExpand * hFac &&
-						(eLleft = rect.left) <= eLvW &&
+					if ((eLbottom = bottom) >= elemNegativeExpand &&
+						(eLtop = top) <= elvH &&
+						(eLright = right) >= elemNegativeExpand * hFac &&
+						(eLleft = left) <= eLvW &&
 						(eLbottom || eLright || eLleft || eLtop) &&
 						(isLoading < 3 && !elemExpandVal && (loadMode < 3 || lowRuns < 4)) &&
 						isNestedVisible(elem, elemExpand)){
