@@ -1,20 +1,23 @@
-(function(window, document, undefined){
-	'use strict';
-	if(!document.addEventListener){return;}
+(function(window, document, undefined) {
+	"use strict";
+	if (!document.addEventListener) {
+		return;
+	}
 	var config, checkElements, expand;
 
 	var unloadElements = [];
 	var requestAnimationFrame = window.requestAnimationFrame || setTimeout;
 	var unloader = {
-		checkElements: function(){
+		checkElements: function() {
 			var i, len, box;
 
 			var vTop = expand * -1;
 			var vLeft = vTop;
-			var vBottom = (parseInt(window.parentHeight, 10) || innerHeight) + expand;
+			var vBottom =
+				(parseInt(window.parentHeight, 10) || innerHeight) + expand;
 			var vRight = innerWidth + expand;
 
-			for(i = 0, len = checkElements.length; i < len; i++){
+			for (i = 0, len = checkElements.length; i < len; i++) {
 				box = checkElements[i].getBoundingClientRect();
 				var top = box.top;
 				var bottom = box.bottom;
@@ -29,72 +32,79 @@
 					right += iframeRect.left;
 				}
 
-				if((top > vBottom || bottom < vTop || left > vRight || right < vLeft) ||
-					(config.unloadHidden && !top && !bottom && !left && !right)){
+				if (
+					top > vBottom ||
+					bottom < vTop ||
+					left > vRight ||
+					right < vLeft ||
+					(config.unloadHidden && !top && !bottom && !left && !right)
+				) {
 					unloadElements.push(checkElements[i]);
 				}
 			}
 			requestAnimationFrame(unloader.unloadElements);
 		},
-		unload: function(element){
+		unload: function(element) {
 			var sources, isResponsive, i, len;
 			var picture = element.parentNode;
 			lazySizes.rC(element, config.loadedClass);
 
-			if(element.getAttribute(config.srcsetAttr)){
-				element.setAttribute('srcset', config.emptySrc);
+			if (element.getAttribute(config.srcsetAttr)) {
+				element.setAttribute("srcset", config.emptySrc);
 				isResponsive = true;
 			}
 
-			if(picture && picture.nodeName.toUpperCase() == 'PICTURE'){
-				sources = picture.getElementsByTagName('source');
+			if (picture && picture.nodeName.toUpperCase() == "PICTURE") {
+				sources = picture.getElementsByTagName("source");
 
-				for(i = 0, len = sources.length; i < len; i++){
-					sources[i].setAttribute('srcset', config.emptySrc);
+				for (i = 0, len = sources.length; i < len; i++) {
+					sources[i].setAttribute("srcset", config.emptySrc);
 				}
 
 				isResponsive = true;
 			}
 
-			if(lazySizes.hC(element, config.autosizesClass)){
+			if (lazySizes.hC(element, config.autosizesClass)) {
 				lazySizes.rC(element, config.autosizesClass);
-				element.setAttribute(config.sizesAttr, 'auto');
+				element.setAttribute(config.sizesAttr, "auto");
 			}
 
-			if(isResponsive || element.getAttribute(config.srcAttr)){
+			if (isResponsive || element.getAttribute(config.srcAttr)) {
 				element.src = config.emptySrc;
 			}
 
 			lazySizes.aC(element, config.unloadedClass);
 			lazySizes.aC(element, config.lazyClass);
-			lazySizes.fire(element, 'lazyafterunload');
+			lazySizes.fire(element, "lazyafterunload");
 		},
-		unloadElements: function(elements){
+		unloadElements: function(elements) {
 			elements = Array.isArray(elements) ? elements : unloadElements;
 
-			while(elements.length){
+			while (elements.length) {
 				unloader.unload(elements.shift());
 			}
 		},
 		_reload: function(e) {
-			if(lazySizes.hC(e.target, config.unloadedClass) && e.detail){
+			if (lazySizes.hC(e.target, config.unloadedClass) && e.detail) {
 				e.detail.reloaded = true;
 				lazySizes.rC(e.target, config.unloadedClass);
 			}
 		}
 	};
 
-	function init(){
-		if(!window.lazySizes || checkElements){return;}
+	function init() {
+		if (!window.lazySizes || checkElements) {
+			return;
+		}
 		var docElem = document.documentElement;
-		var throttleRun = (function(){
+		var throttleRun = (function() {
 			var running;
-			var run = function(){
+			var run = function() {
 				unloader.checkElements();
 				running = false;
 			};
-			return function(){
-				if(!running){
+			return function() {
+				if (!running) {
 					running = true;
 					setTimeout(run, 999);
 				}
@@ -102,51 +112,69 @@
 		})();
 
 		config = lazySizes.cfg;
-		removeEventListener('lazybeforeunveil', init);
+		removeEventListener("lazybeforeunveil", init);
 
-		if(!('unloadClass' in config)){
-			config.unloadClass = 'lazyunload';
+		if (!("unloadClass" in config)) {
+			config.unloadClass = "lazyunload";
 		}
 
-		if(!('unloadedClass' in config)){
-			config.unloadedClass = 'lazyunloaded';
+		if (!("unloadedClass" in config)) {
+			config.unloadedClass = "lazyunloaded";
 		}
 
-		if(!('unloadHidden' in config)){
+		if (!("unloadHidden" in config)) {
 			config.unloadHidden = true;
 		}
 
-		if(!('emptySrc' in config)){
-			config.emptySrc = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
+		if (!("emptySrc" in config)) {
+			config.emptySrc =
+				"data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
 		}
 
-		if(!('autoUnload' in config)){
+		if (!("autoUnload" in config)) {
 			config.autoUnload = true;
 		}
 
-		if(!('unloadPixelThreshold' in config)){
+		if (!("unloadPixelThreshold" in config)) {
 			config.unloadPixelThreshold = 60000;
 		}
 
-		if(config.autoUnload){
-			docElem.addEventListener('load',  function(e){
-				if(e.target.naturalWidth * e.target.naturalHeight > config.unloadPixelThreshold && e.target.className &&
-					e.target.className.indexOf && e.target.className.indexOf(lazySizesConfig.loadingClass) != -1 &&
-					e.target.className.indexOf(lazySizesConfig.preloadClass) == -1){
-					lazySizes.aC(e.target, lazySizesConfig.unloadClass);
-				}
-			}, true);
+		if (config.autoUnload) {
+			docElem.addEventListener(
+				"load",
+				function(e) {
+					if (
+						e.target.naturalWidth * e.target.naturalHeight >
+							config.unloadPixelThreshold &&
+						e.target.className &&
+						e.target.className.indexOf &&
+						e.target.className.indexOf(
+							lazySizesConfig.loadingClass
+						) != -1 &&
+						e.target.className.indexOf(
+							lazySizesConfig.preloadClass
+						) == -1 &&
+						e.target.className.indexOf("image-lazyload-prevent") ==
+							-1
+					) {
+						lazySizes.aC(e.target, lazySizesConfig.unloadClass);
+					}
+				},
+				true
+			);
 		}
 
 		lazySizes.unloader = unloader;
 
-		expand = ((config.expand * config.expFactor) + 99) * 1.1;
-		checkElements = document.getElementsByClassName([config.unloadClass, config.loadedClass].join(' '));
+		expand = (config.expand * config.expFactor + 99) * 1.1;
+		checkElements = document.getElementsByClassName(
+			[config.unloadClass, config.loadedClass].join(" ")
+		);
 
 		setInterval(throttleRun, 9999);
-		addEventListener('lazybeforeunveil', throttleRun);
-		addEventListener('lazybeforeunveil', unloader._reload, true);
+		addEventListener("lazybeforeunveil", throttleRun);
+		addEventListener("lazybeforeunveil", unloader._reload, true);
 	}
 
-	addEventListener('lazybeforeunveil', init);
+	addEventListener("lazybeforeunveil", init);
 })(window, document);
