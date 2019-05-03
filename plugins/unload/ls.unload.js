@@ -33,11 +33,17 @@
 				}
 
 				if (
-					top > vBottom ||
-					bottom < vTop ||
-					left > vRight ||
-					right < vLeft ||
-					(config.unloadHidden && !top && !bottom && !left && !right)
+					checkElements[i].className.indexOf(config.unloadClass) >
+						-1 &&
+					(top > vBottom ||
+						bottom < vTop ||
+						left > vRight ||
+						right < vLeft ||
+						(config.unloadHidden &&
+							!top &&
+							!bottom &&
+							!left &&
+							!right))
 				) {
 					unloadElements.push(checkElements[i]);
 				}
