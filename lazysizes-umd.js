@@ -100,6 +100,36 @@
 		return (getComputedStyle(elem, null) || {})[style];
 	};
 
+	var getSrcsetWidths = function(elem){
+		var srcset = elem.srcset || '';
+
+		return srcset
+			.split('w, ')
+			.filter(Boolean)
+			.map(function (w) {
+				return w.match(/ ([0-9]+)w?$/)[1];
+			})
+			.map(function (w) {
+				return parseInt(w, 10);
+			});
+	};
+
+	var limitWidthToSrceset = function(elem, width) {
+		width = parseInt(width, 10);
+
+		var widths = getSrcsetWidths(elem);
+		if (widths.length) {
+			width = widths.filter(function (w) {
+				return w >= width;
+			})[0];
+			if (!width) {
+				width = widths[widths.length - 1];
+			}
+		}
+
+		return width;
+	};
+
 	var getWidth = function(elem, parent, width){
 		width = width || elem.offsetWidth;
 
@@ -107,6 +137,8 @@
 			width =  parent.offsetWidth;
 			parent = parent.parentNode;
 		}
+
+		width = limitWidthToSrceset(elem, width);
 
 		return width;
 	};
@@ -635,7 +667,14 @@
 				if(!event.defaultPrevented){
 					width = event.detail.width;
 
-					if(width && width !== elem._lazysizesWidth){
+					var currentWidth = elem._lazysizesWidth;
+					if (!currentWidth) {
+						currentWidth = elem.getAttribute('sizes') || '';
+						currentWidth = currentWidth && currentWidth.replace(/px$/, '');
+						currentWidth = currentWidth && limitWidthToSrceset(elem, currentWidth);
+					}
+
+					if(width && (!currentWidth || width > currentWidth)){
 						sizeElement(elem, parent, event, width);
 					}
 				}
