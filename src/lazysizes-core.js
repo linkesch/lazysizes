@@ -99,8 +99,9 @@ function l(window, document) {
 			.split('w, ')
 			.filter(Boolean)
 			.map(function (w) {
-				return w.match(/ ([0-9]+)w?$/)[1];
+				return (w.match(/ ([0-9]+)w?$/) || [])[1];
 			})
+			.filter(Boolean)
 			.map(function (w) {
 				return parseInt(w, 10);
 			});
