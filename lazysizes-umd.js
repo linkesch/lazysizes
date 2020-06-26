@@ -669,11 +669,12 @@
 					width = event.detail.width;
 
 					var currentWidth = elem._lazysizesWidth;
-					if (!currentWidth) {
-						currentWidth = elem.getAttribute('sizes') || '';
-						currentWidth = currentWidth && currentWidth.replace(/px$/, '');
-						currentWidth = currentWidth && limitWidthToSrceset(elem, currentWidth);
+					currentWidth = currentWidth || elem.getAttribute('sizes') || '';
+					if (typeof currentWidth === 'number') {
+						currentWidth = currentWidth.toString();
 					}
+					currentWidth = currentWidth && currentWidth.replace(/px$/, '');
+					currentWidth = currentWidth && limitWidthToSrceset(elem, currentWidth);
 
 					if(width && (!currentWidth || width > currentWidth)){
 						sizeElement(elem, parent, event, width);
