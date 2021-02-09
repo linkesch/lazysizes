@@ -5,9 +5,11 @@
 		module.exports = lazySizes;
 	}
 }(window, function l(window, document) {
-	'use strict';
+	"use strict";
 	/*jshint eqnull:true */
-	if(!document.getElementsByClassName){return;}
+	if (!document.getElementsByClassName) {
+		return;
+	}
 
 	var lazySizesConfig;
 
@@ -17,9 +19,9 @@
 
 	var supportPicture = window.HTMLPictureElement;
 
-	var _addEventListener = 'addEventListener';
+	var _addEventListener = "addEventListener";
 
-	var _getAttribute = 'getAttribute';
+	var _getAttribute = "getAttribute";
 
 	var addEventListener = window[_addEventListener];
 
@@ -31,78 +33,108 @@
 
 	var regPicture = /^picture$/i;
 
-	var loadEvents = ['load', 'error', 'lazyincluded', '_lazyloaded'];
+	var loadEvents = ["load", "error", "lazyincluded", "_lazyloaded"];
 
 	var regClassCache = {};
 
 	var forEach = Array.prototype.forEach;
 
-	var hasClass = function(ele, cls) {
-		if(!regClassCache[cls]){
-			regClassCache[cls] = new RegExp('(\\s|^)'+cls+'(\\s|$)');
+	var hasClass = function (ele, cls) {
+		if (!regClassCache[cls]) {
+			regClassCache[cls] = new RegExp("(\\s|^)" + cls + "(\\s|$)");
 		}
-		return regClassCache[cls].test((typeof ele[_getAttribute] === 'function' && ele[_getAttribute]('class')) || '') && regClassCache[cls];
+		return (
+			regClassCache[cls].test(
+				(typeof ele[_getAttribute] === "function" &&
+					ele[_getAttribute]("class")) ||
+					""
+			) && regClassCache[cls]
+		);
 	};
 
-	var addClass = function(ele, cls) {
-		if (!hasClass(ele, cls)){
-			ele.setAttribute('class', ((typeof ele[_getAttribute] === 'function' && ele[_getAttribute]('class')) || '').trim() + ' ' + cls);
+	var addClass = function (ele, cls) {
+		if (!hasClass(ele, cls)) {
+			ele.setAttribute(
+				"class",
+				(
+					(typeof ele[_getAttribute] === "function" &&
+						ele[_getAttribute]("class")) ||
+					""
+				).trim() +
+					" " +
+					cls
+			);
 		}
 	};
 
-	var removeClass = function(ele, cls) {
+	var removeClass = function (ele, cls) {
 		var reg;
-		if ((reg = hasClass(ele,cls))) {
-			ele.setAttribute('class', ((typeof ele[_getAttribute] === 'function' && ele[_getAttribute]('class')) || '').replace(reg, ' '));
+		if ((reg = hasClass(ele, cls))) {
+			ele.setAttribute(
+				"class",
+				(
+					(typeof ele[_getAttribute] === "function" &&
+						ele[_getAttribute]("class")) ||
+					""
+				).replace(reg, " ")
+			);
 		}
 	};
 
-	var addRemoveLoadEvents = function(dom, fn, add){
-		var action = add ? _addEventListener : 'removeEventListener';
-		if(add){
+	var addRemoveLoadEvents = function (dom, fn, add) {
+		var action = add ? _addEventListener : "removeEventListener";
+		if (add) {
 			addRemoveLoadEvents(dom, fn);
 		}
-		loadEvents.forEach(function(evt){
+		loadEvents.forEach(function (evt) {
 			dom[action](evt, fn);
 		});
 	};
 
-	var triggerEvent = function(elem, name, detail, noBubbles, noCancelable){
+	var triggerEvent = function (elem, name, detail, noBubbles, noCancelable) {
 		var event;
 
-		if (typeof CustomEvent === 'function') {
+		if (typeof CustomEvent === "function") {
 			event = new CustomEvent(name, {
 				bubbles: !noBubbles,
 				cancelable: !noCancelable,
-				detail: detail || {}
+				detail: detail || {},
 			});
 		} else {
-			event = document.createEvent('CustomEvent');
-			event.initCustomEvent(name, !noBubbles, !noCancelable, detail || {});
+			event = document.createEvent("CustomEvent");
+			event.initCustomEvent(
+				name,
+				!noBubbles,
+				!noCancelable,
+				detail || {}
+			);
 		}
 
 		elem.dispatchEvent(event);
 		return event;
 	};
 
-	var updatePolyfill = function (el, full){
+	var updatePolyfill = function (el, full) {
 		var polyfill;
-		if( !supportPicture && ( polyfill = (window.picturefill || lazySizesConfig.pf) ) ){
-			polyfill({reevaluate: true, elements: [el]});
-		} else if(full && full.src){
+		if (
+			!supportPicture &&
+			(polyfill = window.picturefill || lazySizesConfig.pf)
+		) {
+			polyfill({ reevaluate: true, elements: [el] });
+		} else if (full && full.src) {
 			el.src = full.src;
 		}
 	};
 
-	var getCSS = function (elem, style){
+	var getCSS = function (elem, style) {
 		return (getComputedStyle(elem, null) || {})[style];
 	};
 
-	var getSrcsetWidths = function(elem){
-		var srcset = elem.srcset || '';
+	var getSrcsetWidths = function (elem) {
+		var srcset = elem.srcset || "";
 
 		return srcset
-			.split('w, ')
+			.split("w, ")
 			.filter(Boolean)
 			.map(function (w) {
 				return (w.match(/ ([0-9]+)w?$/) || [])[1];
@@ -113,7 +145,7 @@
 			});
 	};
 
-	var limitWidthToSrceset = function(elem, width) {
+	var limitWidthToSrceset = function (elem, width) {
 		width = parseInt(width, 10);
 
 		var widths = getSrcsetWidths(elem);
@@ -129,11 +161,15 @@
 		return width;
 	};
 
-	var getWidth = function(elem, parent, width){
+	var getWidth = function (elem, parent, width) {
 		width = width || elem.offsetWidth;
 
-		while(width < lazySizesConfig.minSize && parent && !elem._lazysizesWidth){
-			width =  parent.offsetWidth;
+		while (
+			width < lazySizesConfig.minSize &&
+			parent &&
+			!elem._lazysizesWidth
+		) {
+			width = parent.offsetWidth;
 			parent = parent.parentNode;
 		}
 
@@ -142,13 +178,13 @@
 		return width;
 	};
 
-	var rAF = (function(){
+	var rAF = (function () {
 		var running, waiting;
 		var firstFns = [];
 		var secondFns = [];
 		var fns = firstFns;
 
-		var run = function(){
+		var run = function () {
 			var runFns = fns;
 
 			fns = firstFns.length ? secondFns : firstFns;
@@ -156,20 +192,20 @@
 			running = true;
 			waiting = false;
 
-			while(runFns.length){
+			while (runFns.length) {
 				runFns.shift()();
 			}
 
 			running = false;
 		};
 
-		var rafBatch = function(fn, queue){
-			if(running && !queue){
+		var rafBatch = function (fn, queue) {
+			if (running && !queue) {
 				fn.apply(this, arguments);
 			} else {
 				fns.push(fn);
 
-				if(!waiting){
+				if (!waiting) {
 					waiting = true;
 					(document.hidden ? setTimeout : requestAnimationFrame)(run);
 				}
@@ -181,63 +217,60 @@
 		return rafBatch;
 	})();
 
-	var rAFIt = function(fn, simple){
-		return simple ?
-			function() {
-				rAF(fn);
-			} :
-			function(){
-				var that = this;
-				var args = arguments;
-				rAF(function(){
-					fn.apply(that, args);
-				});
-			}
-		;
+	var rAFIt = function (fn, simple) {
+		return simple
+			? function () {
+					rAF(fn);
+			  }
+			: function () {
+					var that = this;
+					var args = arguments;
+					rAF(function () {
+						fn.apply(that, args);
+					});
+			  };
 	};
 
-	var throttle = function(fn){
+	var throttle = function (fn) {
 		var running;
 		var lastTime = 0;
 		var gDelay = 125;
 		var RIC_DEFAULT_TIMEOUT = 666;
 		var rICTimeout = RIC_DEFAULT_TIMEOUT;
-		var run = function(){
+		var run = function () {
 			running = false;
 			lastTime = Date.now();
 			fn();
 		};
-		var idleCallback = requestIdleCallback ?
-			function(){
-				requestIdleCallback(run, {timeout: rICTimeout});
-				if(rICTimeout !== RIC_DEFAULT_TIMEOUT){
-					rICTimeout = RIC_DEFAULT_TIMEOUT;
-				}
-			}:
-			rAFIt(function(){
-				setTimeout(run);
-			}, true)
-		;
-
-		return function(isPriority){
+		var idleCallback = requestIdleCallback
+			? function () {
+					requestIdleCallback(run, { timeout: rICTimeout });
+					if (rICTimeout !== RIC_DEFAULT_TIMEOUT) {
+						rICTimeout = RIC_DEFAULT_TIMEOUT;
+					}
+			  }
+			: rAFIt(function () {
+					setTimeout(run);
+			  }, true);
+		return function (isPriority) {
 			var delay;
-			if((isPriority = isPriority === true)){
+			if ((isPriority = isPriority === true)) {
 				rICTimeout = 44;
 			}
 
-			if(running){
+			if (running) {
 				return;
 			}
 
-			running =  true;
+			running = true;
 
 			delay = gDelay - (Date.now() - lastTime);
 
-			if(delay < 0){
+			if (delay < 0) {
 				delay = 0;
 			}
 
-			if(isPriority || (delay < 9 && requestIdleCallback)){
+			if (isPriority || (delay < 9 && requestIdleCallback)) {
 				idleCallback();
 			} else {
 				setTimeout(idleCallback, delay);
@@ -246,14 +279,14 @@
 	};
 
 	//based on http://modernjavascript.blogspot.de/2013/08/building-better-debounce.html
-	var debounce = function(func) {
+	var debounce = function (func) {
 		var timeout, timestamp;
 		var wait = 99;
-		var run = function(){
+		var run = function () {
 			timeout = null;
 			func();
 		};
-		var later = function() {
+		var later = function () {
 			var last = Date.now() - timestamp;
 
 			if (last < wait) {
@@ -263,7 +296,7 @@
 			}
 		};
 
-		return function() {
+		return function () {
 			timestamp = Date.now();
 
 			if (!timeout) {
@@ -272,9 +305,13 @@
 		};
 	};
 
-
-	var loader = (function(){
-		var lazyloadElems, preloadElems, isCompleted, resetPreloadingTimer, loadMode, started;
+	var loader = (function () {
+		var lazyloadElems,
+			preloadElems,
+			isCompleted,
+			resetPreloadingTimer,
+			loadMode,
+			started;
 
 		var eLvW, elvH, eLtop, eLleft, eLright, eLbottom;
 
@@ -283,7 +320,8 @@
 		var regImg = /^img$/i;
 		var regIframe = /^iframe$/i;
 
-		var supportScroll = ('onscroll' in window) && !(/glebot/.test(navigator.userAgent));
+		var supportScroll =
+			"onscroll" in window && !/glebot/.test(navigator.userAgent);
 
 		var shrinkExpand = 0;
 		var currentExpand = 0;
@@ -291,31 +329,40 @@
 		var isLoading = 0;
 		var lowRuns = -1;
 
-		var resetPreloading = function(e){
+		var resetPreloading = function (e) {
 			isLoading--;
-			if(e && e.target){
+			if (e && e.target) {
 				addRemoveLoadEvents(e.target, resetPreloading);
 			}
 
-			if(!e || isLoading < 0 || !e.target){
+			if (!e || isLoading < 0 || !e.target) {
 				isLoading = 0;
 			}
 		};
 
-		var isNestedVisible = function(elem, elemExpand){
+		var isNestedVisible = function (elem, elemExpand) {
 			var outerRect;
 			var parent = elem;
-			var visible = ((elem || {}).offsetParent || window.getComputedStyle(elem).position === 'fixed') && (getCSS(document.body, 'visibility') == 'hidden' || getCSS(elem, 'visibility') != 'hidden');
+			var visible =
+				((elem || {}).offsetParent ||
+					window.getComputedStyle(elem).position === "fixed") &&
+				(getCSS(document.body, "visibility") == "hidden" ||
+					getCSS(elem, "visibility") != "hidden");
 
 			eLtop -= elemExpand;
 			eLbottom += elemExpand;
 			eLleft -= elemExpand;
 			eLright += elemExpand;
 
-			while(visible && (parent = parent.offsetParent) && parent != document.body && parent != docElem){
-				visible = ((getCSS(parent, 'opacity') || 1) > 0);
+			while (
+				visible &&
+				(parent = parent.offsetParent) &&
+				parent != document.body &&
+				parent != docElem
+			) {
+				visible = (getCSS(parent, "opacity") || 1) > 0;
 
-				if(visible && getCSS(parent, 'overflow') != 'visible'){
+				if (visible && getCSS(parent, "overflow") != "visible") {
 					outerRect = parent.getBoundingClientRect();
 
 					var top = outerRect.top;
@@ -330,55 +377,90 @@
 						right += iframeRect.left;
 					}
 
-					visible = eLright > left &&
+					visible =
+						eLright > left &&
 						eLleft < right &&
 						eLbottom > top - 1 &&
-						eLtop < bottom + 1
-					;
+						eLtop < bottom + 1;
 				}
 			}
 
 			return visible;
 		};
 
-		var checkElements = function() {
-			var eLlen, i, rect, autoLoadElem, loadedSomething, elemExpand, elemNegativeExpand, elemExpandVal, beforeExpandVal, elem, iframeRect, defaultExpand, preloadExpand;
+		var checkElements = function () {
+			var eLlen,
+				i,
+				rect,
+				autoLoadElem,
+				loadedSomething,
+				elemExpand,
+				elemNegativeExpand,
+				elemExpandVal,
+				beforeExpandVal,
+				elem,
+				iframeRect,
+				defaultExpand,
+				preloadExpand;
 
-			if((loadMode = lazySizesConfig.loadMode) && isLoading < 8 && (eLlen = lazyloadElems.length)){
-
+			if (
+				(loadMode = lazySizesConfig.loadMode) &&
+				isLoading < 8 &&
+				(eLlen = lazyloadElems.length)
+			) {
 				i = 0;
 
 				lowRuns++;
 
-				if(!('expand' in lazySizesConfig)){
-					lazySizesConfig.expand = docElem.clientHeight > 500 && docElem.clientWidth > 500 ? 500 : 370;
+				if (!("expand" in lazySizesConfig)) {
+					lazySizesConfig.expand =
+						docElem.clientHeight > 500 && docElem.clientWidth > 500
+							? 500
+							: 370;
 				}
 
 				defaultExpand = lazySizesConfig.expand;
 				preloadExpand = defaultExpand * lazySizesConfig.expFactor;
 
-				if(currentExpand < preloadExpand && isLoading < 1 && lowRuns > 2 && loadMode > 2 && !document.hidden){
+				if (
+					currentExpand < preloadExpand &&
+					isLoading < 1 &&
+					lowRuns > 2 &&
+					loadMode > 2 &&
+					!document.hidden
+				) {
 					currentExpand = preloadExpand;
 					lowRuns = 0;
-				} else if(loadMode > 1 && lowRuns > 1 && isLoading < 6){
+				} else if (loadMode > 1 && lowRuns > 1 && isLoading < 6) {
 					currentExpand = defaultExpand;
 				} else {
 					currentExpand = shrinkExpand;
 				}
 
-				for(; i < eLlen; i++){
+				for (; i < eLlen; i++) {
+					if (!lazyloadElems[i] || lazyloadElems[i]._lazyRace) {
+						continue;
+					}
 
-					if(!lazyloadElems[i] || lazyloadElems[i]._lazyRace){continue;}
+					if (!supportScroll) {
+						unveilElement(lazyloadElems[i]);
+						continue;
+					}
 
-					if(!supportScroll){unveilElement(lazyloadElems[i]);continue;}
-
-					if(!(elemExpandVal = lazyloadElems[i][_getAttribute]('data-expand')) || !(elemExpand = elemExpandVal * 1)){
+					if (
+						!(elemExpandVal = lazyloadElems[i][_getAttribute](
+							"data-expand"
+						)) ||
+						!(elemExpand = elemExpandVal * 1)
+					) {
 						elemExpand = currentExpand;
 					}
 
-					if(beforeExpandVal !== elemExpand){
-						eLvW = innerWidth + (elemExpand * hFac);
-						elvH = (parseInt(window.parentHeight, 10) || innerHeight) + elemExpand;
+					if (beforeExpandVal !== elemExpand) {
+						eLvW = innerWidth + elemExpand * hFac;
+						elvH =
+							(parseInt(window.parentHeight, 10) || innerHeight) +
+							elemExpand;
 						elemNegativeExpand = elemExpand * -1;
 						beforeExpandVal = elemExpand;
 					}
@@ -399,29 +481,51 @@
 						right += iframeRect.left;
 					}
 
-					if (elem.classList.contains('medium-insert-container') && elem.querySelector('.medium-insert-images')) {
-						elem = elem.querySelector('.medium-insert-images');
+					if (
+						elem.classList.contains("medium-insert-container") &&
+						elem.querySelector(".medium-insert-images")
+					) {
+						elem = elem.querySelector(".medium-insert-images");
 					}
 
-					if ((eLbottom = bottom) >= elemNegativeExpand &&
+					if (
+						(eLbottom = bottom) >= elemNegativeExpand &&
 						(eLtop = top) <= elvH &&
 						(eLright = right) >= elemNegativeExpand * hFac &&
 						(eLleft = left) <= eLvW &&
 						(eLbottom || eLright || eLleft || eLtop) &&
-						(isLoading < 3 && !elemExpandVal && (loadMode < 3 || lowRuns < 4)) &&
-						isNestedVisible(elem, elemExpand)){
+						isLoading < 3 &&
+						!elemExpandVal &&
+						(loadMode < 3 || lowRuns < 4) &&
+						isNestedVisible(elem, elemExpand)
+					) {
 						unveilElement(lazyloadElems[i]);
 						loadedSomething = true;
-						if(isLoading > 9){break;}
-					} else if(!loadedSomething && !autoLoadElem &&
-						isLoading < 4 && lowRuns < 4 && loadMode > 2 &&
+						if (isLoading > 9) {
+							break;
+						}
+					} else if (
+						!loadedSomething &&
+						!autoLoadElem &&
+						isLoading < 4 &&
+						lowRuns < 4 &&
+						loadMode > 2 &&
 						(preloadElems[0] || lazySizesConfig.preloadAfterLoad) &&
-						(preloadElems[0] || (!elemExpandVal && ((eLbottom || eLright || eLleft || eLtop) || lazyloadElems[i][_getAttribute](lazySizesConfig.sizesAttr) != 'auto')))){
+						(preloadElems[0] ||
+							(!elemExpandVal &&
+								(eLbottom ||
+									eLright ||
+									eLleft ||
+									eLtop ||
+									lazyloadElems[i][_getAttribute](
+										lazySizesConfig.sizesAttr
+									) != "auto")))
+					) {
 						autoLoadElem = preloadElems[0] || lazyloadElems[i];
 					}
 				}
 
-				if(autoLoadElem && !loadedSomething){
+				if (autoLoadElem && !loadedSomething) {
 					unveilElement(autoLoadElem);
 				}
 			}
@@ -429,71 +533,84 @@
 
 		var throttledCheckElements = throttle(checkElements);
 
-		var switchLoadingClass = function(e){
+		var switchLoadingClass = function (e) {
 			addClass(e.target, lazySizesConfig.loadedClass);
 			removeClass(e.target, lazySizesConfig.loadingClass);
 			addRemoveLoadEvents(e.target, rafSwitchLoadingClass);
 		};
 		var rafedSwitchLoadingClass = rAFIt(switchLoadingClass);
-		var rafSwitchLoadingClass = function(e){
-			rafedSwitchLoadingClass({target: e.target});
+		var rafSwitchLoadingClass = function (e) {
+			rafedSwitchLoadingClass({ target: e.target });
 		};
 
-		var changeIframeSrc = function(elem, src){
+		var changeIframeSrc = function (elem, src) {
 			try {
 				elem.contentWindow.location.replace(src);
-			} catch(e){
+			} catch (e) {
 				elem.src = src;
 			}
 		};
 
-		var handleSources = function(source){
+		var handleSources = function (source) {
 			var customMedia, parent;
 
-			var sourceSrcset = source[_getAttribute](lazySizesConfig.srcsetAttr);
+			var sourceSrcset = source[_getAttribute](
+				lazySizesConfig.srcsetAttr
+			);
 
-			if( (customMedia = lazySizesConfig.customMedia[source[_getAttribute]('data-media') || source[_getAttribute]('media')]) ){
-				source.setAttribute('media', customMedia);
+			if (
+				(customMedia =
+					lazySizesConfig.customMedia[
+						source[_getAttribute]("data-media") ||
+							source[_getAttribute]("media")
+					])
+			) {
+				source.setAttribute("media", customMedia);
 			}
 
-			if(sourceSrcset){
-				source.setAttribute('srcset', sourceSrcset);
+			if (sourceSrcset) {
+				source.setAttribute("srcset", sourceSrcset);
 			}
 
 			//https://bugzilla.mozilla.org/show_bug.cgi?id=1170572
-			if(customMedia){
+			if (customMedia) {
 				parent = source.parentNode;
 				parent.insertBefore(source.cloneNode(), source);
 				parent.removeChild(source);
 			}
 		};
 
-		var lazyUnveil = rAFIt(function (elem, detail, isAuto, sizes, isImg){
+		var lazyUnveil = rAFIt(function (elem, detail, isAuto, sizes, isImg) {
 			var src, srcset, parent, isPicture, event, firesLoad;
 
-			if(!(event = triggerEvent(elem, 'lazybeforeunveil', detail)).defaultPrevented){
-
-				if(sizes){
-					if(isAuto){
+			if (
+				!(event = triggerEvent(elem, "lazybeforeunveil", detail))
+					.defaultPrevented
+			) {
+				if (sizes) {
+					if (isAuto) {
 						addClass(elem, lazySizesConfig.autosizesClass);
 					} else {
-						elem.setAttribute('sizes', sizes);
+						elem.setAttribute("sizes", sizes);
 					}
 				}
 
 				srcset = elem[_getAttribute](lazySizesConfig.srcsetAttr);
 				src = elem[_getAttribute](lazySizesConfig.srcAttr);
 
-				if(isImg) {
+				if (isImg) {
 					parent = elem.parentNode;
-					isPicture = parent && regPicture.test(parent.nodeName || '');
+					isPicture =
+						parent && regPicture.test(parent.nodeName || "");
 				}
 
-				firesLoad = detail.firesLoad || (('src' in elem) && (srcset || src || isPicture));
+				firesLoad =
+					detail.firesLoad ||
+					("src" in elem && (srcset || src || isPicture));
 
-				event = {target: elem};
+				event = { target: elem };
 
-				if(firesLoad){
+				if (firesLoad) {
 					addRemoveLoadEvents(elem, resetPreloading, true);
 					clearTimeout(resetPreloadingTimer);
 					resetPreloadingTimer = setTimeout(resetPreloading, 2500);
@@ -502,33 +619,36 @@
 					addRemoveLoadEvents(elem, rafSwitchLoadingClass, true);
 				}
 
-				if(isPicture){
-					forEach.call(parent.getElementsByTagName('source'), handleSources);
+				if (isPicture) {
+					forEach.call(
+						parent.getElementsByTagName("source"),
+						handleSources
+					);
 				}
 
-				if(srcset){
-					elem.setAttribute('srcset', srcset);
-				} else if(src && !isPicture){
-					if(regIframe.test(elem.nodeName)){
+				if (srcset) {
+					elem.setAttribute("srcset", srcset);
+				} else if (src && !isPicture) {
+					if (regIframe.test(elem.nodeName)) {
 						changeIframeSrc(elem, src);
 					} else {
 						elem.src = src;
 					}
 				}
 
-				if(srcset || isPicture){
-					updatePolyfill(elem, {src: src});
+				if (srcset || isPicture) {
+					updatePolyfill(elem, { src: src });
 				}
 			}
 
-			if(elem._lazyRace){
+			if (elem._lazyRace) {
 				delete elem._lazyRace;
 			}
 			removeClass(elem, lazySizesConfig.lazyClass);
 
-			rAF(function(){
-				if( !firesLoad || (elem.complete && elem.naturalWidth > 1)){
-					if(firesLoad){
+			rAF(function () {
+				if (!firesLoad || (elem.complete && elem.naturalWidth > 1)) {
+					if (firesLoad) {
 						resetPreloading(event);
 					} else {
 						isLoading--;
@@ -538,21 +658,31 @@
 			}, true);
 		});
 
-		var unveilElement = function (elem){
+		var unveilElement = function (elem) {
 			var detail;
 
 			var isImg = regImg.test(elem.nodeName);
 
 			//allow using sizes="auto", but don't use. it's invalid. Use data-sizes="auto" or a valid value for sizes instead (i.e.: sizes="80vw")
-			var sizes = elem[_getAttribute](lazySizesConfig.sizesAttr) || elem[_getAttribute]('sizes');
-			var isAuto = sizes == 'auto';
+			var sizes =
+				elem[_getAttribute](lazySizesConfig.sizesAttr) ||
+				elem[_getAttribute]("sizes");
+			var isAuto = sizes == "auto";
 
-			if(isAuto && isImg && (elem.src || elem.srcset) && !elem.complete && !hasClass(elem, lazySizesConfig.errorClass)){return;}
+			if (
+				isAuto &&
+				isImg &&
+				(elem.src || elem.srcset) &&
+				!elem.complete &&
+				!hasClass(elem, lazySizesConfig.errorClass)
+			) {
+				return;
+			}
 
-			detail = triggerEvent(elem, 'lazyunveilread').detail;
+			detail = triggerEvent(elem, "lazyunveilread").detail;
 
-			if(isAuto){
-				 autoSizer.updateElem(elem, true, elem.offsetWidth);
+			if (isAuto) {
+				autoSizer.updateElem(elem, true, elem.offsetWidth);
 			}
 
 			elem._lazyRace = true;
@@ -561,13 +691,15 @@
 			lazyUnveil(elem, detail, isAuto, sizes, isImg);
 		};
 
-		var onload = function(){
-			if(isCompleted){return;}
-			if(Date.now() - started < 999){
+		var onload = function () {
+			if (isCompleted) {
+				return;
+			}
+			if (Date.now() - started < 999) {
 				setTimeout(onload, 999);
 				return;
 			}
-			var afterScroll = debounce(function(){
+			var afterScroll = debounce(function () {
 				lazySizesConfig.loadMode = 3;
 				throttledCheckElements();
 			});
@@ -578,50 +710,94 @@
 
 			throttledCheckElements();
 
-			addEventListener('scroll', function(){
-				if(lazySizesConfig.loadMode == 3){
-					lazySizesConfig.loadMode = 2;
-				}
-				afterScroll();
-			}, true);
+			addEventListener(
+				"scroll",
+				function () {
+					if (lazySizesConfig.loadMode == 3) {
+						lazySizesConfig.loadMode = 2;
+					}
+					afterScroll();
+				},
+				true
+			);
 		};
 
 		return {
-			_: function(){
+			_: function () {
 				started = Date.now();
 
-				lazyloadElems = document.getElementsByClassName(lazySizesConfig.lazyClass);
-				preloadElems = document.getElementsByClassName(lazySizesConfig.lazyClass + ' ' + lazySizesConfig.preloadClass);
+				lazyloadElems = document.getElementsByClassName(
+					lazySizesConfig.lazyClass
+				);
+				preloadElems = document.getElementsByClassName(
+					lazySizesConfig.lazyClass +
+						" " +
+						lazySizesConfig.preloadClass
+				);
 				hFac = lazySizesConfig.hFac;
 
-				addEventListener('scroll', throttledCheckElements, true);
+				addEventListener("scroll", throttledCheckElements, true);
 
-				addEventListener('resize', throttledCheckElements, true);
+				addEventListener("resize", throttledCheckElements, true);
 
-				if(window.MutationObserver){
-					new MutationObserver( throttledCheckElements ).observe( docElem, {childList: true, subtree: true, attributes: true} );
+				if (window.MutationObserver) {
+					new MutationObserver(throttledCheckElements).observe(
+						docElem,
+						{
+							childList: true,
+							subtree: true,
+							attributes: true,
+						}
+					);
 				} else {
-					docElem[_addEventListener]('DOMNodeInserted', throttledCheckElements, true);
-					docElem[_addEventListener]('DOMAttrModified', throttledCheckElements, true);
+					docElem[_addEventListener](
+						"DOMNodeInserted",
+						throttledCheckElements,
+						true
+					);
+					docElem[_addEventListener](
+						"DOMAttrModified",
+						throttledCheckElements,
+						true
+					);
 					setInterval(throttledCheckElements, 999);
 				}
 
-				addEventListener('hashchange', throttledCheckElements, true);
+				addEventListener("hashchange", throttledCheckElements, true);
 
 				//, 'fullscreenchange'
-				['focus', 'mouseover', 'click', 'load', 'transitionend', 'animationend', 'webkitAnimationEnd'].forEach(function(name){
-					document[_addEventListener](name, throttledCheckElements, true);
+				[
+					"focus",
+					"mouseover",
+					"click",
+					"load",
+					"transitionend",
+					"animationend",
+					"webkitAnimationEnd",
+				].forEach(function (name) {
+					document[_addEventListener](
+						name,
+						throttledCheckElements,
+						true
+					);
 				});
 
-				if(['interactive', 'complete', 'loaded'].indexOf(document.readyState) !== -1){
+				if (
+					["interactive", "complete", "loaded"].indexOf(
+						document.readyState
+					) !== -1
+				) {
 					onload();
 				} else {
-					addEventListener('load', onload);
-					document[_addEventListener]('DOMContentLoaded', throttledCheckElements);
+					addEventListener("load", onload);
+					document[_addEventListener](
+						"DOMContentLoaded",
+						throttledCheckElements
+					);
 					setTimeout(onload, 20000);
 				}
 
-				if(lazyloadElems.length){
+				if (lazyloadElems.length) {
 					checkElements();
 					rAF._lsFlush();
 				} else {
@@ -629,65 +805,77 @@
 				}
 			},
 			checkElems: throttledCheckElements,
-			unveil: unveilElement
+			unveil: unveilElement,
 		};
 	})();
 
-
-	var autoSizer = (function(){
+	var autoSizer = (function () {
 		var autosizesElems;
 
-		var sizeElement = rAFIt(function(elem, parent, event, width){
+		var sizeElement = rAFIt(function (elem, parent, event, width) {
 			var sources, i, len;
 			elem._lazysizesWidth = width;
-			width += 'px';
 
-			elem.setAttribute('sizes', width);
-
-			if(regPicture.test(parent.nodeName || '')){
-				sources = parent.getElementsByTagName('source');
-				for(i = 0, len = sources.length; i < len; i++){
-					sources[i].setAttribute('sizes', width);
+			if (regPicture.test(parent.nodeName || "")) {
+				width = width / devicePixelRatio;
+				sources = parent.getElementsByTagName("source");
+				for (i = 0, len = sources.length; i < len; i++) {
+					sources[i].setAttribute("sizes", width + "px");
 				}
 			}
 
-			if(!event.detail.dataAttr){
+			elem.setAttribute("sizes", width + "px");
+
+			if (!event.detail.dataAttr) {
 				updatePolyfill(elem, event.detail);
 			}
 		});
-		var getSizeElement = function (elem, dataAttr, width){
+		var getSizeElement = function (elem, dataAttr, width) {
 			var event;
 			var parent = elem.parentNode;
 
-			if(parent){
-				width = getWidth(elem, parent, width);
-				event = triggerEvent(elem, 'lazybeforesizes', {width: width, dataAttr: !!dataAttr});
+			if (!parent) {
+				return;
+			}
 
-				if(!event.defaultPrevented){
-					width = event.detail.width;
+			width = getWidth(elem, parent, width);
+			event = triggerEvent(elem, "lazybeforesizes", {
+				width: width,
+				dataAttr: !!dataAttr,
+			});
+			if (event.defaultPrevented) {
+				return;
+			}
 
-					var currentWidth = elem._lazysizesWidth;
-					currentWidth = currentWidth || elem.getAttribute('sizes') || '';
-					if (typeof currentWidth === 'number') {
-						currentWidth = currentWidth.toString();
-					}
-					currentWidth = currentWidth && currentWidth.replace(/px$/, '');
-					currentWidth = currentWidth && limitWidthToSrceset(elem, currentWidth);
+			width = event.detail.width;
 
-					if(width && (!currentWidth || width > currentWidth)){
-						sizeElement(elem, parent, event, width);
-					}
-				}
+			var currentWidth = elem._lazysizesWidth;
+			currentWidth = currentWidth || elem.getAttribute("sizes") || "";
+			if (typeof currentWidth === "number") {
+				currentWidth = currentWidth.toString();
+			}
+			currentWidth = currentWidth && currentWidth.replace(/px$/, "");
+			currentWidth =
+				currentWidth && limitWidthToSrceset(elem, currentWidth);
+
+			if (
+				width &&
+				(!currentWidth ||
+					width > currentWidth ||
+					elem.closest("picture") ||
+					elem.matches(".lazyload-background"))
+			) {
+				sizeElement(elem, parent, event, width);
 			}
 		};
 
-		var updateElementsSizes = function(){
+		var updateElementsSizes = function () {
 			var i;
 			var len = (autosizesElems || {}).length;
-			if(len){
+			if (len) {
 				i = 0;
 
-				for(; i < len; i++){
+				for (; i < len; i++) {
 					getSizeElement(autosizesElems[i]);
 				}
 			}
@@ -696,58 +884,61 @@
 		var debouncedUpdateElementsSizes = debounce(updateElementsSizes);
 
 		return {
-			_: function(){
-				autosizesElems = document.getElementsByClassName(lazySizesConfig.autosizesClass);
-				addEventListener('resize', debouncedUpdateElementsSizes);
+			_: function () {
+				autosizesElems = document.getElementsByClassName(
+					lazySizesConfig.autosizesClass
+				);
+				addEventListener("resize", debouncedUpdateElementsSizes);
 			},
 			checkElems: debouncedUpdateElementsSizes,
-			updateElem: getSizeElement
+			updateElem: getSizeElement,
 		};
 	})();
 
-	var init = function(){
-		if(!init.i){
+	var init = function () {
+		if (!init.i) {
 			init.i = true;
 			autoSizer._();
 			loader._();
 		}
 	};
 
-	(function(){
+	(function () {
 		var prop;
 
 		var lazySizesDefaults = {
-			lazyClass: 'lazyload',
-			loadedClass: 'lazyloaded',
-			loadingClass: 'lazyloading',
-			preloadClass: 'lazypreload',
-			errorClass: 'lazyerror',
+			lazyClass: "lazyload",
+			loadedClass: "lazyloaded",
+			loadingClass: "lazyloading",
+			preloadClass: "lazypreload",
+			errorClass: "lazyerror",
 			//strictClass: 'lazystrict',
-			autosizesClass: 'lazyautosizes',
-			srcAttr: 'data-src',
-			srcsetAttr: 'data-srcset',
-			sizesAttr: 'data-sizes',
+			autosizesClass: "lazyautosizes",
+			srcAttr: "data-src",
+			srcsetAttr: "data-srcset",
+			sizesAttr: "data-sizes",
 			//preloadAfterLoad: false,
 			minSize: 40,
 			customMedia: {},
 			init: true,
 			expFactor: 1.5,
 			hFac: 0.8,
-			loadMode: 2
+			loadMode: 2,
 		};
 
-		lazySizesConfig = window.lazySizesConfig || window.lazysizesConfig || {};
+		lazySizesConfig =
+			window.lazySizesConfig || window.lazysizesConfig || {};
 
-		for(prop in lazySizesDefaults){
-			if(!(prop in lazySizesConfig)){
+		for (prop in lazySizesDefaults) {
+			if (!(prop in lazySizesConfig)) {
 				lazySizesConfig[prop] = lazySizesDefaults[prop];
 			}
 		}
 
 		window.lazySizesConfig = lazySizesConfig;
 
-		setTimeout(function(){
-			if(lazySizesConfig.init){
+		setTimeout(function () {
+			if (lazySizesConfig.init) {
 				init();
 			}
 		});
