@@ -248,7 +248,9 @@
 	);
 
 	document.documentElement.addEventListener("lazybeforesizes", function (e) {
-		var grid = e.target.closest(".lazyload-background");
+		var grid =
+			e.target.closest("picture") &&
+			e.target.closest(".lazyload-background");
 		if (e.defaultPrevented || !grid) {
 			return;
 		}
