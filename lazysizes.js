@@ -479,6 +479,7 @@
 						bottom += iframeRect.top;
 						left += iframeRect.left;
 						right += iframeRect.left;
+						eLvW += iframeRect.left;
 					}
 
 					if (
