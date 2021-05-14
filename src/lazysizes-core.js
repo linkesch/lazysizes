@@ -337,9 +337,10 @@ function l(window, document) {
 		var isNestedVisible = function (elem, elemExpand) {
 			var outerRect;
 			var parent = elem;
+			var style = elem && window.getComputedStyle(elem);
 			var visible =
 				((elem || {}).offsetParent ||
-					window.getComputedStyle(elem).position === "fixed") &&
+					(style && style.position === "fixed")) &&
 				(getCSS(document.body, "visibility") == "hidden" ||
 					getCSS(elem, "visibility") != "hidden");
 
@@ -442,9 +443,8 @@ function l(window, document) {
 					}
 
 					if (
-						!(elemExpandVal = lazyloadElems[i][_getAttribute](
-							"data-expand"
-						)) ||
+						!(elemExpandVal =
+							lazyloadElems[i][_getAttribute]("data-expand")) ||
 						!(elemExpand = elemExpandVal * 1)
 					) {
 						elemExpand = currentExpand;
